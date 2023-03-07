@@ -157,5 +157,21 @@ def ere_en_file_tuple(output_folder):
     return file_tuple
 
 
+def cled_file_tuple(output_folder, language):
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder, exist_ok=True)
+
+    conll_2012_folder = "data/raw_data/CLED" + language
+    output_folder = output_folder + language
+
+    file_tuple = [
+        (conll_2012_folder + "/train_with_neg_eg.json", output_folder + '/train'),
+        (conll_2012_folder + "/dev_with_neg_eg.json", output_folder + '/val'),
+        (conll_2012_folder + "/test_with_neg_eg.json", output_folder + '/test'),
+    ]
+
+    return file_tuple
+
+
 if __name__ == "__main__":
     pass

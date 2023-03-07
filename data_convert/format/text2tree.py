@@ -125,5 +125,18 @@ class Text2Tree(TargetFormat):
         return source_text, target_text
 
 
+class CLText2Tree(TargetFormat):
+
+    @staticmethod
+    # TODO
+    def annotate_predicate_arguments(tokens, predicate_arguments, zh=False):
+        return super().annotate_predicate_arguments(tokens, predicate_arguments, zh)
+    
+    @staticmethod
+    # TODO
+    def annotate_spans(tokens, spans):
+        return super().annotate_spans(tokens, spans)
+
+
 if __name__ == "__main__":
     pass

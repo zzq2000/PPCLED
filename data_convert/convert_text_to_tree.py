@@ -10,11 +10,11 @@ from nltk.corpus import stopwords
 
 english_stopwords = set(stopwords.words('english') + ["'s", "'re", "%"])
 
-
+# TODO
 def convert_file_tuple(file_tuple, data_class=Event, target_class=Text2Tree,
                        output_folder='data/text2tree/framenet',
                        ignore_nonevent=False, zh=False,
-                       mark_tree=False, type_format='subtype'):
+                       mark_tree=False, type_format='subtype', language='English'):
     counter = defaultdict(Counter)
     data_counter = defaultdict(Counter)
 
@@ -123,18 +123,48 @@ def convert_ere_event(output_folder='data/text2tree/ere_event', type_format='sub
                        )
 
 
+def convert_cled_event(output_folder='data/text2tree/cled', type_format='subtype',
+                      ignore_nonevent=False, mark_tree=False, language='English'):
+    from data_convert.task_format.event_extraction import cled_file_tuple
+    convert_file_tuple(file_tuple=cled_file_tuple,
+                       output_folder=output_folder,
+                       ignore_nonevent=ignore_nonevent,
+                       mark_tree=mark_tree,
+                       type_format=type_format,
+                       language=language
+                       )
+    
+
+
+
+
 if __name__ == "__main__":
     type_format_name = 'subtype'
     convert_dyiepp_event("data/text2tree/dyiepp_ace2005_%s" % type_format_name,
                          type_format=type_format_name,
                          ignore_nonevent=False, mark_tree=False,
                          )
-    convert_ace2005_event("data/text2tree/one_ie_ace2005_%s" % type_format_name,
-                          type_format=type_format_name,
-                          ignore_nonevent=False,
-                          mark_tree=False
-                          )
-    convert_ere_event("data/text2tree/one_ie_ere_en_%s" % type_format_name,
-                      type_format=type_format_name,
-                      ignore_nonevent=False,
-                      mark_tree=False)
+    convert_cled_event("data/text2tree/cled_%s" % type_format_name,
+                         type_format=type_format_name,
+                         ignore_nonevent=False, mark_tree=False,
+                         language="English"
+                         )
+    convert_cled_event("data/text2tree/cled_%s" % type_format_name,
+                         type_format=type_format_name,
+                         ignore_nonevent=False, mark_tree=False,
+                         language="Chinese"
+                         )
+    convert_cled_event("data/text2tree/cled_%s" % type_format_name,
+                         type_format=type_format_name,
+                         ignore_nonevent=False, mark_tree=False,
+                         language="Arabic"
+                         )
+    # convert_ace2005_event("data/text2tree/one_ie_ace2005_%s" % type_format_name,
+    #                       type_format=type_format_name,
+    #                       ignore_nonevent=False,
+    #                       mark_tree=False
+    #                       )
+    # convert_ere_event("data/text2tree/one_ie_ere_en_%s" % type_format_name,
+    #                   type_format=type_format_name,
+    #                   ignore_nonevent=False,
+    #                   mark_tree=False)
