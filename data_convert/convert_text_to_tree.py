@@ -3,7 +3,7 @@
 import os
 import json
 from collections import Counter, defaultdict
-from data_convert.format.text2tree import Text2Tree
+from data_convert.format.text2tree import Text2Tree, CLText2Tree
 from data_convert.task_format.event_extraction import Event, DyIEPP
 from data_convert.utils import read_file, check_output, data_counter_to_table, get_schema, output_schema
 from nltk.corpus import stopwords
@@ -146,16 +146,19 @@ if __name__ == "__main__":
                          )
     convert_cled_event("data/text2tree/cled_%s" % type_format_name,
                          type_format=type_format_name,
+                         target_class = CLText2Tree,
                          ignore_nonevent=False, mark_tree=False,
                          language="English"
                          )
     convert_cled_event("data/text2tree/cled_%s" % type_format_name,
                          type_format=type_format_name,
+                         target_class = CLText2Tree,
                          ignore_nonevent=False, mark_tree=False,
                          language="Chinese"
                          )
     convert_cled_event("data/text2tree/cled_%s" % type_format_name,
                          type_format=type_format_name,
+                         target_class = CLText2Tree,
                          ignore_nonevent=False, mark_tree=False,
                          language="Arabic"
                          )

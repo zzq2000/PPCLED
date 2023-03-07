@@ -112,6 +112,255 @@ class Event(TaskFormat):
         yield {'tokens': self.sentence, 'events': events}
 
 
+class CLED(TaskFormat):
+    """
+    CLED data_format:
+    {
+        "golden-entity-mentions": [
+            {
+                "end": 26,
+                "entity-type": "PER:Individual",
+                "id": "AFP_ENG_20030401.0476-E1",
+                "phrase-type": "NAM",
+                "start": 23,
+                "text": "incumbent Howard Davies"
+            },
+            {
+                "end": 24,
+                "entity-type": "PER:Individual",
+                "id": "AFP_ENG_20030401.0476-E1",
+                "phrase-type": "NOMPRE",
+                "start": 23,
+                "text": "incumbent"
+            },
+            {
+                "end": 5,
+                "entity-type": "PER:Individual",
+                "id": "AFP_ENG_20030401.0476-E5",
+                "phrase-type": "NAM",
+                "start": 0,
+                "text": "Former senior banker Callum McCarthy"
+            },
+            {
+                "end": 3,
+                "entity-type": "PER:Individual",
+                "id": "AFP_ENG_20030401.0476-E5",
+                "phrase-type": "NOMPRE",
+                "start": 0,
+                "text": "Former senior banker"
+            },
+            {
+                "end": 16,
+                "entity-type": "GPE:Population-Center",
+                "id": "AFP_ENG_20030401.0476-E14",
+                "phrase-type": "NAM",
+                "start": 15,
+                "text": "London"
+            },
+            {
+                "end": 21,
+                "entity-type": "TIM:time",
+                "id": "AFP_ENG_20030401.0476-T4",
+                "phrase-type": "TIM",
+                "start": 20,
+                "text": "September"
+            },
+            {
+                "end": 1,
+                "entity-type": "TIM:time",
+                "id": "AFP_ENG_20030401.0476-T8",
+                "phrase-type": "TIM",
+                "start": 0,
+                "text": "Former"
+            },
+            {
+                "end": 19,
+                "entity-type": "Job-Title:other",
+                "id": "AFP_ENG_20030401.0476-V1",
+                "phrase-type": "VALUE",
+                "start": 8,
+                "text": "one of the most important jobs in London's financial world"
+            }
+        ],
+        "golden-event-mentions": [
+            {
+                "arguments": [
+                    {
+                        "end": 5,
+                        "role": "Person",
+                        "start": 0,
+                        "text": "Former senior banker Callum McCarthy"
+                    },
+                    {
+                        "end": 19,
+                        "role": "Position",
+                        "start": 8,
+                        "text": "one of the most\nimportant jobs in London's financial world"
+                    },
+                    {
+                        "end": 21,
+                        "role": "Time-Within",
+                        "start": 20,
+                        "text": "September"
+                    }
+                ],
+                "event_type": "Personnel:Start-Position",
+                "id": "AFP_ENG_20030401.0476-EV1",
+                "trigger": {
+                    "end": 6,
+                    "start": 5,
+                    "text": "begins"
+                }
+            },
+            {
+                "arguments": [
+                    {
+                        "end": 5,
+                        "role": "Person",
+                        "start": 0,
+                        "text": "Former senior banker Callum McCarthy"
+                    }
+                ],
+                "event_type": "Personnel:End-Position",
+                "id": "AFP_ENG_20030401.0476-EV2",
+                "trigger": {
+                    "end": 1,
+                    "start": 0,
+                    "text": "Former"
+                }
+            },
+            {
+                "arguments": [
+                    {
+                        "end": 26,
+                        "role": "Person",
+                        "start": 23,
+                        "text": "incumbent Howard Davies"
+                    },
+                    {
+                        "end": 16,
+                        "role": "Place",
+                        "start": 15,
+                        "text": "London"
+                    },
+                    {
+                        "end": 19,
+                        "role": "Position",
+                        "start": 8,
+                        "text": "one of the most\nimportant jobs in London's financial world"
+                    },
+                    {
+                        "end": 21,
+                        "role": "Time-Within",
+                        "start": 20,
+                        "text": "September"
+                    }
+                ],
+                "event_type": "Personnel:End-Position",
+                "id": "AFP_ENG_20030401.0476-EV3",
+                "trigger": {
+                    "end": 28,
+                    "start": 26,
+                    "text": "steps down"
+                }
+            }
+        ],
+        "penn_treebank": [],
+        "pos-tags": [
+            "JJ",
+            "JJ",
+            "NN",
+            "NNP",
+            "NNP",
+            "VBZ",
+            "WP",
+            "VBZ",
+            "CD",
+            "IN",
+            "DT",
+            "RBS",
+            "JJ",
+            "NNS",
+            "IN",
+            "NNP",
+            "POS",
+            "JJ",
+            "NN",
+            "IN",
+            "NNP",
+            ",",
+            "WRB",
+            "JJ",
+            "NNP",
+            "NNP",
+            "VBZ",
+            "RP"
+        ],
+        "sentence": "Former senior banker Callum McCarthy begins what is one of the most important jobs in London's financial world in September, when incumbent Howard Davies steps down",
+        "stanford-colcc": [],
+        "words": [
+            "Former",
+            "senior",
+            "banker",
+            "Callum",
+            "McCarthy",
+            "begins",
+            "what",
+            "is",
+            "one",
+            "of",
+            "the",
+            "most",
+            "important",
+            "jobs",
+            "in",
+            "London",
+            "'s",
+            "financial",
+            "world",
+            "in",
+            "September",
+            ",",
+            "when",
+            "incumbent",
+            "Howard",
+            "Davies",
+            "steps",
+            "down"
+        ]
+    }
+    """
+    def __init__(self, doc_json):
+        self.entity_mentions = doc_json["golden-entity-mentions"]
+        self.event_mentions = doc_json["golden-event-mentions"]
+        self.sentence = doc_json["sentence"]
+
+    def generate_sentence(self, type_format='subtype'):
+        events = list()
+
+        for event in self.event_mentions:
+            arguments = list()
+            for argument in event['arguments']:
+                arguments += [[argument['role'], argument['text']]]
+
+            suptype, subtype = event['event_type'].split(':')
+
+            if type_format == 'subtype':
+                event_type = subtype
+            elif type_format == 'suptype':
+                event_type = suptype
+            else:
+                event_type = suptype + type_format + subtype
+
+            events += [{
+                'type': event_type,
+                'tokens': event['trigger']['text'],
+                'arguments': arguments
+            }]
+
+        yield {'tokens': self.sentence, 'events': events}
+
+
 def DyIEPP_ace2005_file_tuple(output_folder):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder, exist_ok=True)

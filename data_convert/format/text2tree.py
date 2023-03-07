@@ -130,7 +130,31 @@ class CLText2Tree(TargetFormat):
     @staticmethod
     # TODO
     def annotate_predicate_arguments(tokens, predicate_arguments, zh=False):
-        return super().annotate_predicate_arguments(tokens, predicate_arguments, zh)
+        """
+
+        :param tokens:
+            [
+                "Former senior banker Callum McCarthy begins what is one of the most important jobs in London's financial world in September, when incumbent Howard Davies steps down",
+                ...
+            ]    
+
+        :param predicate_arguments:
+            [
+                {
+                    'type': "Start-Position",
+                    'tokens': "begins",
+                    'arguments': [
+                        ["Person", "Former senior banker Callum McCarthy"],
+                        ...
+                    ]
+                },
+                ...
+            ]
+
+        :return :
+        """
+        
+        return 
     
     @staticmethod
     # TODO
