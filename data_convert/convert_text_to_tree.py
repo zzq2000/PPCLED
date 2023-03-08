@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 import os
+import sys
+sys.path.append(os.path.abspath('./'))
 import json
 from collections import Counter, defaultdict
-from data_convert.format.text2tree import Text2Tree, CLText2Tree
-from data_convert.task_format.event_extraction import Event, DyIEPP
+from data_convert.format.text2tree import Text2Tree, CLEDText2Tree
+from data_convert.task_format.event_extraction import Event, DyIEPP, CLED
 from data_convert.utils import read_file, check_output, data_counter_to_table, get_schema, output_schema
 from nltk.corpus import stopwords
 
@@ -14,7 +16,7 @@ english_stopwords = set(stopwords.words('english') + ["'s", "'re", "%"])
 def convert_file_tuple(file_tuple, data_class=Event, target_class=Text2Tree,
                        output_folder='data/text2tree/framenet',
                        ignore_nonevent=False, zh=False,
-                       mark_tree=False, type_format='subtype', language='English'):
+                       mark_tree=False, type_format='subtype'):
     counter = defaultdict(Counter)
     data_counter = defaultdict(Counter)
 
@@ -32,46 +34,82 @@ def convert_file_tuple(file_tuple, data_class=Event, target_class=Text2Tree,
         event_output = open(output_filename + '.json', 'w')
         span_event_output = open(span_output_filename + '.json', 'w')
 
-        for line in read_file(in_filename):
-            document = data_class(json.loads(line.strip()))
-            for sentence in document.generate_sentence(type_format=type_format):
+        if data_class != CLED:
+            for line in read_file(in_filename):
+                document = data_class(json.loads(line.strip()))
+                for sentence in document.generate_sentence(type_format=type_format):
 
-                if ignore_nonevent and len(sentence['events']) == 0:
-                    continue
+                    if ignore_nonevent and len(sentence['events']) == 0:
+                        continue
 
-                source, target = target_class.annotate_predicate_arguments(
-                    tokens=sentence['tokens'],
-                    predicate_arguments=sentence['events'],
-                    zh=zh
-                )
+                    source, target = target_class.annotate_predicate_arguments(
+                        tokens=sentence['tokens'],
+                        predicate_arguments=sentence['events'],
+                        zh=zh
+                    )
 
-                for event in sentence['events']:
-                    event_schema_set = event_schema_set | get_schema(event)
-                    sep = '' if zh else ' '
-                    predicate = sep.join([sentence['tokens'][index]
-                                          for index in event['tokens']])
-                    counter['pred'].update([predicate])
-                    counter['type'].update([event['type']])
-                    data_counter[in_filename].update(['event'])
-                    for argument in event['arguments']:
-                        data_counter[in_filename].update(['argument'])
-                        counter['role'].update([argument[0]])
+                    for event in sentence['events']:
+                        event_schema_set = event_schema_set | get_schema(event)
+                        sep = '' if zh else ' '
+                        predicate = sep.join([sentence['tokens'][index]
+                                            for index in event['tokens']])
+                        counter['pred'].update([predicate])
+                        counter['type'].update([event['type']])
+                        data_counter[in_filename].update(['event'])
+                        for argument in event['arguments']:
+                            data_counter[in_filename].update(['argument'])
+                            counter['role'].update([argument[0]])
 
-                data_counter[in_filename].update(['sentence'])
+                    data_counter[in_filename].update(['sentence'])
 
-                event_output.write(json.dumps(
-                    {'text': source, 'event': target}, ensure_ascii=False) + '\n')
+                    event_output.write(json.dumps(
+                        {'text': source, 'event': target}, ensure_ascii=False) + '\n')
 
-                span_source, span_target = target_class.annotate_span(
-                    tokens=sentence['tokens'],
-                    predicate_arguments=sentence['events'],
-                    zh=zh,
-                    mark_tree=mark_tree
-                )
+                    span_source, span_target = target_class.annotate_span(
+                        tokens=sentence['tokens'],
+                        predicate_arguments=sentence['events'],
+                        zh=zh,
+                        mark_tree=mark_tree
+                    )
 
-                span_event_output.write(
-                    json.dumps({'text': span_source, 'event': span_target}, ensure_ascii=False) + '\n')
+                    span_event_output.write(
+                        json.dumps({'text': span_source, 'event': span_target}, ensure_ascii=False) + '\n')
+        else:
+            with open(in_filename, "r", encoding='UTF-8') as f:
+                lines = json.load(f)
+                for line in lines:
+                    sentence = data_class(line).generate_sentence(type_format=type_format)
+                    if ignore_nonevent and len(sentence['events']) == 0:
+                        continue
 
+                    source, target = target_class.annotate_predicate_arguments(
+                        tokens=sentence['tokens'],
+                        predicate_arguments=sentence['events'],
+                        zh=zh
+                    )
+
+                    for event in sentence['events']:
+                        event_schema_set = event_schema_set | get_schema(event)
+                        sep = '' if zh else ' '
+                        predicate = event['tokens']
+                        counter['pred'].update([predicate])
+                        counter['type'].update([event['type']])
+                        data_counter[in_filename].update(['event'])
+
+                    data_counter[in_filename].update(['sentence'])
+
+                    event_output.write(json.dumps(
+                        {'text': source, 'event': target}, ensure_ascii=False) + '\n')
+
+                    span_source, span_target = target_class.annotate_span(
+                        tokens=sentence['tokens'],
+                        predicate_arguments=sentence['events'],
+                        zh=zh,
+                        mark_tree=mark_tree
+                    )
+
+                    span_event_output.write(
+                        json.dumps({'text': span_source, 'event': span_target}, ensure_ascii=False) + '\n')
         event_output.close()
         span_event_output.close()
 
@@ -84,7 +122,8 @@ def convert_file_tuple(file_tuple, data_class=Event, target_class=Text2Tree,
         span_output_folder, 'event.schema'))
     print('Pred:', len(counter['pred']), counter['pred'].most_common(10))
     print('Type:', len(counter['type']), counter['type'].most_common(10))
-    print('Role:', len(counter['role']), counter['role'].most_common(10))
+    if data_class != CLED:
+        print('Role:', len(counter['role']), counter['role'].most_common(10))
     print(data_counter_to_table(data_counter))
     print('\n\n\n')
 
@@ -123,7 +162,7 @@ def convert_ere_event(output_folder='data/text2tree/ere_event', type_format='sub
                        )
 
 
-def convert_cled_event(output_folder='data/text2tree/cled', type_format='subtype',
+def convert_cled_event(output_folder='data/text2tree/cled_subtype_English', type_format='subtype',
                       ignore_nonevent=False, mark_tree=False, language='English'):
     from data_convert.task_format.event_extraction import cled_file_tuple
     convert_file_tuple(file_tuple=cled_file_tuple,
@@ -131,7 +170,9 @@ def convert_cled_event(output_folder='data/text2tree/cled', type_format='subtype
                        ignore_nonevent=ignore_nonevent,
                        mark_tree=mark_tree,
                        type_format=type_format,
-                       language=language
+                       data_class=CLED,
+                       target_class=CLEDText2Tree,
+                       zh=(language=='Chinese')
                        )
     
 
@@ -140,25 +181,22 @@ def convert_cled_event(output_folder='data/text2tree/cled', type_format='subtype
 
 if __name__ == "__main__":
     type_format_name = 'subtype'
-    convert_dyiepp_event("data/text2tree/dyiepp_ace2005_%s" % type_format_name,
+    # convert_dyiepp_event("data/text2tree/dyiepp_ace2005_%s" % type_format_name,
+    #                      type_format=type_format_name,
+    #                      ignore_nonevent=False, mark_tree=False,
+    #                      )
+    convert_cled_event("data/text2tree/cled_%s_%s" % (type_format_name, "English"),
                          type_format=type_format_name,
-                         ignore_nonevent=False, mark_tree=False,
-                         )
-    convert_cled_event("data/text2tree/cled_%s" % type_format_name,
-                         type_format=type_format_name,
-                         target_class = CLText2Tree,
                          ignore_nonevent=False, mark_tree=False,
                          language="English"
                          )
-    convert_cled_event("data/text2tree/cled_%s" % type_format_name,
+    convert_cled_event("data/text2tree/cled_%s_%s" % (type_format_name, "Chinese"),
                          type_format=type_format_name,
-                         target_class = CLText2Tree,
                          ignore_nonevent=False, mark_tree=False,
                          language="Chinese"
                          )
-    convert_cled_event("data/text2tree/cled_%s" % type_format_name,
+    convert_cled_event("data/text2tree/cled_%s" % (type_format_name, "Arabic"),
                          type_format=type_format_name,
-                         target_class = CLText2Tree,
                          ignore_nonevent=False, mark_tree=False,
                          language="Arabic"
                          )

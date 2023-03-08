@@ -125,41 +125,69 @@ class Text2Tree(TargetFormat):
         return source_text, target_text
 
 
-class CLText2Tree(TargetFormat):
+class CLEDText2Tree(TargetFormat):
+
+    en_event2zh_event = {}
+    en_event2ar_event = {}
 
     @staticmethod
     # TODO
-    def annotate_predicate_arguments(tokens, predicate_arguments, zh=False):
+    def annotate_predicate_arguments(tokens, predicate_arguments, zh=False, mark_tree=False, multi_tree=False):
         """
 
         :param tokens:
-            [
-                "Former senior banker Callum McCarthy begins what is one of the most important jobs in London's financial world in September, when incumbent Howard Davies steps down",
-                ...
-            ]    
+            "Former senior banker Callum McCarthy begins what is one of the most important jobs in London's financial world in September, when incumbent Howard Davies steps down"  
 
         :param predicate_arguments:
-            [
-                {
+            {
                     'type': "Start-Position",
                     'tokens': "begins",
                     'arguments': [
                         ["Person", "Former senior banker Callum McCarthy"],
                         ...
                     ]
-                },
-                ...
-            ]
+                }
 
         :return :
+
         """
-        
-        return 
+
+        event_str_rep_list = list()
+
+        for predicate_argument in predicate_arguments:
+            event_type = predicate_argument['type']
+
+            predicate_text = predicate_argument['tokens']
+            event_str_rep = f"{type_start} {event_type} {predicate_text}{type_end}"
+            event_str_rep_list += [event_str_rep]
+
+        source_text = tokens
+        target_text = ' '.join(event_str_rep_list)
+
+        if not multi_tree:
+            target_text = f'{type_start} ' + \
+                          ' '.join(event_str_rep_list) + f' {type_end}'
+
+        return source_text, target_text
     
     @staticmethod
     # TODO
-    def annotate_spans(tokens, spans):
-        return super().annotate_spans(tokens, spans)
+    def annotate_span(tokens, predicate_arguments, mark_tree=False, zh=False):
+
+        event_str_rep_list = list()
+
+        for predicate_argument in predicate_arguments:
+            event_type = predicate_argument['type']
+
+            predicate_text = predicate_argument['tokens']
+
+            span_str_list = [' '.join([type_start, event_type, predicate_text, type_end])]
+            event_str_rep_list += [' '.join(span_str_list)]
+
+        source_text = tokens
+        target_text = f'{type_start} ' + ' '.join(event_str_rep_list) + f' {type_end}'
+
+        return source_text, target_text
 
 
 if __name__ == "__main__":

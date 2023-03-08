@@ -358,7 +358,7 @@ class CLED(TaskFormat):
                 'arguments': arguments
             }]
 
-        yield {'tokens': self.sentence, 'events': events}
+        return {'tokens': self.sentence, 'events': events}
 
 
 def DyIEPP_ace2005_file_tuple(output_folder):
@@ -406,12 +406,12 @@ def ere_en_file_tuple(output_folder):
     return file_tuple
 
 
-def cled_file_tuple(output_folder, language):
+def cled_file_tuple(output_folder='data/text2tree/cled_subtype_English'):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder, exist_ok=True)
 
-    conll_2012_folder = "data/raw_data/CLED" + language
-    output_folder = output_folder + language
+    language = output_folder.split('/')[-1].split('_')[-1]
+    conll_2012_folder = "data/raw_data/CLED/" + language
 
     file_tuple = [
         (conll_2012_folder + "/train_with_neg_eg.json", output_folder + '/train'),
