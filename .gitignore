@@ -1,4 +1,4 @@
 data/
-data_convert/__pycache__/
+__pycache__
 requirements.txt
 .vscode/
