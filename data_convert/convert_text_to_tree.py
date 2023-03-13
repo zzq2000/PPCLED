@@ -89,6 +89,7 @@ def convert_file_tuple(file_tuple, data_class=Event, target_class=Text2Tree,
                     )
 
                     for event in sentence['events']:
+                        event['arguments'] = []
                         event_schema_set = event_schema_set | get_schema(event)
                         sep = '' if zh else ' '
                         predicate = event['tokens']
@@ -195,7 +196,7 @@ if __name__ == "__main__":
                          ignore_nonevent=False, mark_tree=False,
                          language="Chinese"
                          )
-    convert_cled_event("data/text2tree/cled_%s" % (type_format_name, "Arabic"),
+    convert_cled_event("data/text2tree/cled_%s_%s" % (type_format_name, "Arabic"),
                          type_format=type_format_name,
                          ignore_nonevent=False, mark_tree=False,
                          language="Arabic"

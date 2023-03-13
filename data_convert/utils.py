@@ -57,5 +57,7 @@ def output_schema(event_schema_set, output_file):
 
     with open(output_file, 'w') as output:
         output.write(json.dumps(event_type_list) + '\n')
-        output.write(json.dumps(argument_role_list) + '\n')
-        output.write(json.dumps(event_type_list_dict) + '\n')
+        if len(argument_role_list) != 0:
+            output.write(json.dumps(argument_role_list) + '\n')
+        if len(event_type_list_dict) != 0:
+            output.write(json.dumps(event_type_list_dict) + '\n')
