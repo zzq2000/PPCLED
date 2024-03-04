@@ -1,5 +1,5 @@
 # PPCLED
-Cross-lingual Event Detection with Prompt Tunning and Prototypical learning
+This repository is code for my paper Cross-lingual Event Detection with Prompt Tunning and Prototypical learning
 
 ## Data Processing
 We first refer to the following code and environments [[cross-ling-ev-extr](https://github.com/meryemmhamdi1/cross-ling-ev-extr)] for data preprocessing. Thanks!
