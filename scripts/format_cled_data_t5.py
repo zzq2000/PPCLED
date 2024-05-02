@@ -4,6 +4,8 @@ import sys
 import os
 import json
 import collections
+from tqdm import tqdm
+from transformers import MT5Tokenizer
 
 class InputExample(object):
     """A single training/test example for token classification."""
@@ -23,7 +25,7 @@ class InputExample(object):
 Prefix = "Classify event type:"
 PROMPT = "The event type of {} is"
 
-def read_examples_from_file(data_dir, mode, dataset):
+def read_examples_from_file(data_dir, mode, dataset, lang):
     if dataset == "ACE":
         file_path = os.path.join(data_dir, "{}_wout_neg_eg.json".format(mode))
     else:
@@ -84,10 +86,16 @@ def read_examples_from_file(data_dir, mode, dataset):
                 data = json.loads(line)
                 words=data['tokens']
                 labels=data["labels"]
+
+                if lang != "ja" and lang != "ko":
+                    sentence = " ".join(words)
+                else:
+                    sentence = "".join(words)
+                
                 for (word, label) in zip(words, labels):
-                        input = Prefix + " " + data["sentence"] + " " + PROMPT.format(word)
-                        output = label
-                        examples.append({"input": input, "output": output})
+                    input = Prefix + " " + sentence + " " + PROMPT.format(word)
+                    output = label
+                    examples.append({"input": input, "output": output})
     
     return examples
 
@@ -106,9 +114,9 @@ if __name__ == "__main__":
             langs = ["English", "Chinese", "Arabic"]
         else:
             langs = ["en", "es", "hi", "ja", "ko", "pl", "pt", "tr"]
-        for lang in langs:
+        for lang in tqdm(langs, desc=dataset):
             for mode in ["train", "dev", "test"]:
-                examples = read_examples_from_file(os.path.join(base_dir, dataset, lang), mode, dataset)
+                examples = read_examples_from_file(os.path.join(base_dir, dataset, lang), mode, dataset, lang)
                 fout_path = os.path.join(base_dir, dataset, lang, mode + "_t5.json")
                 with open(fout_path, "w", encoding="utf-8") as fout:
                     json.dump(examples, fout, ensure_ascii=False, indent=4)
