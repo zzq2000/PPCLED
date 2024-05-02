@@ -12,7 +12,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 数据加载与预处理
 def load_data(base_dir, lang, mode, dataset):
-    data = json.load(open(os.path.join(base_dir, dataset, lang, mode + ".json"), encoding="utf-8"))
+    data = json.load(open(os.path.join(base_dir, dataset, lang, mode + "_t5.json"), encoding="utf-8"))
     return data
 
 # 准备数据集
