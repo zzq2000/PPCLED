@@ -77,7 +77,7 @@ def read_examples_from_file(data_dir, mode, dataset, lang):
                 
                 for (word, label) in zip(words, labels):
                     input = Prefix + " " + data["sentence"] + " " + PROMPT.format(word)
-                    output = label
+                    output = "<extra_id_0> " + label
 
                     examples.append({"input": input, "output": output})
     else:
@@ -94,7 +94,7 @@ def read_examples_from_file(data_dir, mode, dataset, lang):
                 
                 for (word, label) in zip(words, labels):
                     input = Prefix + " " + sentence + " " + PROMPT.format(word)
-                    output = label
+                    output = "<extra_id_0> " + label
                     examples.append({"input": input, "output": output})
     
     return examples
