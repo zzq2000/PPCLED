@@ -2,3 +2,5 @@ data/
 __pycache__
 requirements.txt
 .vscode/
+mt5-base/
+model/

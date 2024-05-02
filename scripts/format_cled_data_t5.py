@@ -23,7 +23,10 @@ class InputExample(object):
 PROMPT = "The event type of {} is"
 
 def read_examples_from_file(data_dir, mode, dataset):
-    file_path = os.path.join(data_dir, "{}_wout_neg_eg.json".format(mode))
+    if dataset == "ACE":
+        file_path = os.path.join(data_dir, "{}_wout_neg_eg.json".format(mode))
+    else:
+        file_path = os.path.join(data_dir, "{}.json".format(mode))
     examples = []
     words=[]
     labels=[]
@@ -69,10 +72,19 @@ def read_examples_from_file(data_dir, mode, dataset):
                     for k in range(trigger_start+1, trigger_end):
                         labels[k]=getLabel((event_type.split(":"))[1])
                 
-                for (word, lable) in zip(words, labels):
+                for (word, label) in zip(words, labels):
                     input = data["sentence"] + "</s>" + PROMPT.format(word)
-                    output = lable
+                    output = label
 
+                    examples.append({"input": input, "output": output})
+    else:
+        datas=json.load(open(file_path, "r", encoding="utf-8"))
+        for i, data in enumerate(datas):
+            words=data['tokens']
+            labels=data["labels"]
+            for (word, label) in zip(words, labels):
+                    input = data["sentence"] + "</s>" + PROMPT.format(word)
+                    output = label
                     examples.append({"input": input, "output": output})
     
     return examples
@@ -87,11 +99,16 @@ def get_labels(dataset):
 
 if __name__ == "__main__":
     base_dir = "./data"
-    for lang in ["English", "Chinese", "Arabic"]:
-        for mode in ["train", "dev", "test"]:
-            examples = read_examples_from_file(os.path.join(base_dir, lang), mode, "ACE")
-            fout_path = os.path.join(base_dir, lang, mode + ".json")
-            with open(fout_path, "w", encoding="utf-8") as fout:
-                json.dump(examples, fout, ensure_ascii=False, indent=4)
+    for dataset in ["ACE", "MINION"]:
+        if dataset == "ACE":
+            langs = ["English", "Chinese", "Arabic"]
+        else:
+            langs = ["en", "es", "hi", "ja", "ko", "pl", "pt", "tr"]
+        for lang in langs:
+            for mode in ["train", "dev", "test"]:
+                examples = read_examples_from_file(os.path.join(base_dir, dataset, lang), mode, dataset)
+                fout_path = os.path.join(base_dir, dataset, lang, mode + "_t5.json")
+                with open(fout_path, "w", encoding="utf-8") as fout:
+                    json.dump(examples, fout, ensure_ascii=False, indent=4)
             
             
