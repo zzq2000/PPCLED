@@ -23,7 +23,7 @@ class CustomDataset(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         item = {key: torch.tensor(val[idx]) for key, val in self.encodings.items()}
-        item['labels'] = torch.tensor([self.labels[idx]], dtype=torch.long)
+        item['labels'] = torch.tensor(self.labels[idx])
         return item
 
     def __len__(self):
@@ -48,8 +48,8 @@ def evaluate(model, valid_loader, tokenizer):
             # Convert decoded predictions and labels to the format expected by 'seqeval'
             for (pred, label) in zip (decoded_preds, decoded_labels):
                 if label != 'O':
-                    predictions.append(pred)
-                    references.append(label)
+                    predictions.append([pred])
+                    references.append([label])
 
     # Calculate F1 score
     results = f1_metric.compute(predictions=predictions, references=references)
@@ -82,10 +82,10 @@ def train(src_lang, tgt_lang, dataset):
 
 
     # 创建数据加载器
-    dataset = CustomDataset(train_inputs, train_outputs.input_ids[:, 0].tolist())
+    dataset = CustomDataset(train_inputs, train_outputs.input_ids)
     loader = DataLoader(dataset, batch_size=train_batch_size, shuffle=True)
 
-    valid_dataset = CustomDataset(valid_inputs, valid_outputs.input_ids[:, 0].tolist())
+    valid_dataset = CustomDataset(valid_inputs, valid_outputs.input_ids)
     valid_loader = DataLoader(valid_dataset, batch_size=eval_batch_size, shuffle=False)
 
 
