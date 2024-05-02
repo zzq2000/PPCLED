@@ -20,6 +20,7 @@ class InputExample(object):
         self.input = input
         self.output = output
 
+Prefix = "Classify event type:"
 PROMPT = "The event type of {} is"
 
 def read_examples_from_file(data_dir, mode, dataset):
@@ -73,19 +74,20 @@ def read_examples_from_file(data_dir, mode, dataset):
                         labels[k]=getLabel((event_type.split(":"))[1])
                 
                 for (word, label) in zip(words, labels):
-                    input = data["sentence"] + "</s>" + PROMPT.format(word)
+                    input = Prefix + " " + data["sentence"] + " " + PROMPT.format(word)
                     output = label
 
                     examples.append({"input": input, "output": output})
     else:
-        datas=json.load(open(file_path, "r", encoding="utf-8"))
-        for i, data in enumerate(datas):
-            words=data['tokens']
-            labels=data["labels"]
-            for (word, label) in zip(words, labels):
-                    input = data["sentence"] + "</s>" + PROMPT.format(word)
-                    output = label
-                    examples.append({"input": input, "output": output})
+        with open(file_path, "r", encoding="utf-8") as fin:
+            for line in fin.readlines():
+                data = json.loads(line)
+                words=data['tokens']
+                labels=data["labels"]
+                for (word, label) in zip(words, labels):
+                        input = Prefix + " " + data["sentence"] + " " + PROMPT.format(word)
+                        output = label
+                        examples.append({"input": input, "output": output})
     
     return examples
 
